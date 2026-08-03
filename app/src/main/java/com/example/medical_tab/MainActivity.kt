@@ -1,8 +1,10 @@
 package com.example.medical_tab
-import android.R
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,10 +15,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.view.WindowCompat
 import com.example.medical_tab.api.RetrofitClient
 import com.example.medical_tab.model.SectionLineModel
 import com.example.medical_tab.repository.MedicalRepository
@@ -25,10 +32,16 @@ import com.example.medical_tab.ui.theme.PrimaryColor
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    private val repository = MedicalRepository(RetrofitClient.apiService)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.light(
+                android.graphics.Color.TRANSPARENT,
+                android.graphics.Color.TRANSPARENT
+            )
+        )
+        val repository = MedicalRepository(RetrofitClient.apiService)
         setContent {
             EmployeeIDAppTheme {
                 EmployeeIDApp(repository)
@@ -45,6 +58,7 @@ fun EmployeeIDApp(repository: MedicalRepository) {
     var selectedLineId by remember { mutableStateOf<String?>(null) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    val focusManager = LocalFocusManager.current
 
     // Fetch data from API (Live)
     LaunchedEffect(Unit) {
@@ -57,12 +71,17 @@ fun EmployeeIDApp(repository: MedicalRepository) {
         }
     }
 
-    val sections = sectionLines.map { it.SectionName }.distinct()
+    val sections = sectionLines.asSequence().map { it.SectionName }.distinct().toList()
     val filteredLines = sectionLines.filter { it.SectionName == selectedSectionName }
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        containerColor = Color(0xFFF5F5F5)
+        containerColor = Color(0xFFF5F5F5),
+        modifier = Modifier.pointerInput(Unit) {
+            detectTapGestures {
+                focusManager.clearFocus()
+            }
+        }
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -81,9 +100,8 @@ fun EmployeeIDApp(repository: MedicalRepository) {
                 HeaderSection()
 
                 IDCardInputSection(
-                    idCardText = idCardText,
-                    onIdCardChange = { idCardText = it }
-                )
+                    idCardText = idCardText
+                ) { idCardText = it }
 
                 if (sections.isNotEmpty()) {
                     SectionSelectionSection(
@@ -108,7 +126,6 @@ fun EmployeeIDApp(repository: MedicalRepository) {
                 if (selectedLineId != null) {
                     SubmitButtonSection(
                         onSubmit = {
-                            val section = selectedSectionName ?: "Unknown"
                             val line = selectedLineId ?: "Unknown"
                             val idCard = idCardText
                             scope.launch {
@@ -140,6 +157,32 @@ fun EmployeeIDApp(repository: MedicalRepository) {
         }
     }
 }
+
+
+
+@Composable
+fun SubmitButtonSection(
+    onSubmit: () -> Unit
+) {
+    Button(
+        onClick = onSubmit,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color(0xFF4CAF50),
+            contentColor = Color.White
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Text(
+            "SUBMIT",
+            fontWeight = FontWeight.Bold,
+            fontSize = 18.sp
+        )
+    }
+}
+
 
 @Composable
 fun HeaderSection() {
@@ -189,6 +232,7 @@ fun IDCardInputSection(
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = idCardText,
+                textStyle = TextStyle(color = Color.Black),
                 onValueChange = { newValue ->
                     // Only allow digits 0-9
                     val filtered = newValue.filter { it.isDigit() }
@@ -208,25 +252,3 @@ fun IDCardInputSection(
     }
 }
 
-@Composable
-fun SubmitButtonSection(
-    onSubmit: () -> Unit
-) {
-    Button(
-        onClick = onSubmit,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color(0xFF4CAF50),
-            contentColor = Color.White
-        ),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Text(
-            "SUBMIT",
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp
-        )
-    }
-}

@@ -1,4 +1,4 @@
-package custom_components
+package com.example.medical_tab.custom_components
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
