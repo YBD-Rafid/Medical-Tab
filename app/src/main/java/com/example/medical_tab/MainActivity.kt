@@ -1,10 +1,12 @@
 package com.example.medical_tab
+import android.R
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -12,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.medical_tab.api.RetrofitClient
@@ -109,10 +112,23 @@ fun EmployeeIDApp(repository: MedicalRepository) {
                             val line = selectedLineId ?: "Unknown"
                             val idCard = idCardText
                             scope.launch {
-                                repository.submitMedicalInfo(idCard, line).onSuccess {
-                                    snackbarHostState.showSnackbar("Submitted: Section $section, Line $line")
+                                repository.submitMedicalInfo(idCard, line).onSuccess { isSuccess ->
+                                    if (isSuccess) {
+                                        snackbarHostState.showSnackbar(
+                                            message = "Successfully submitted",
+                                            duration = SnackbarDuration.Short
+                                        )
+                                    } else {
+                                        snackbarHostState.showSnackbar(
+                                            message = "Submission rejected by server. Please verify your information.",
+                                            duration = SnackbarDuration.Long
+                                        )
+                                    }
                                 }.onFailure {
-                                    snackbarHostState.showSnackbar("Submission failed")
+                                    snackbarHostState.showSnackbar(
+                                        message = "Failed to submit: ${it.message ?: "Unknown error"}",
+                                        duration = SnackbarDuration.Long
+                                    )
                                 }
                             }
                         }
@@ -173,7 +189,11 @@ fun IDCardInputSection(
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = idCardText,
-                onValueChange = onIdCardChange,
+                onValueChange = { newValue ->
+                    // Only allow digits 0-9
+                    val filtered = newValue.filter { it.isDigit() }
+                    onIdCardChange(filtered)
+                },
                 label = { Text("ID Card Number") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
@@ -181,7 +201,8 @@ fun IDCardInputSection(
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = PrimaryColor,
                     unfocusedBorderColor = Color.Gray
-                )
+                ),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
         }
     }
