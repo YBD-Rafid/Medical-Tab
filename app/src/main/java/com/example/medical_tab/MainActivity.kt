@@ -128,6 +128,16 @@ fun EmployeeIDApp(repository: MedicalRepository) {
                         onSubmit = {
                             val line = selectedLineId ?: "Unknown"
                             val idCard = idCardText
+                            if (idCard.isBlank()) {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        message = "Please enter your ID card number",
+                                        duration = SnackbarDuration.Short
+                                    )
+                                }
+                                return@SubmitButtonSection
+                            }
+
                             scope.launch {
                                 repository.submitMedicalInfo(idCard, line).onSuccess { isSuccess ->
                                     if (isSuccess) {
