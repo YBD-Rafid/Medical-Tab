@@ -1,4 +1,5 @@
 package com.example.medical_tab
+import android.R.color.white
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -10,6 +11,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,15 +24,15 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 import com.example.medical_tab.api.RetrofitClient
-import com.example.medical_tab.model.SectionLineModel
 import com.example.medical_tab.repository.MedicalRepository
 import com.example.medical_tab.ui.theme.EmployeeIDAppTheme
 import com.example.medical_tab.ui.theme.PrimaryColor
-import kotlinx.coroutines.launch
+import com.example.medical_tab.custom_components.AppNavigation
 
 class MainActivity : ComponentActivity() {
 
@@ -44,129 +47,13 @@ class MainActivity : ComponentActivity() {
         val repository = MedicalRepository(RetrofitClient.apiService)
         setContent {
             EmployeeIDAppTheme {
-                EmployeeIDApp(repository)
+                AppNavigation(repository)
             }
         }
     }
 }
 
-@Composable
-fun EmployeeIDApp(repository: MedicalRepository) {
-    var idCardText by remember { mutableStateOf("") }
-    var sectionLines by remember { mutableStateOf<List<SectionLineModel>>(emptyList()) }
-    var selectedSectionName by remember { mutableStateOf<String?>(null) }
-    var selectedLineId by remember { mutableStateOf<String?>(null) }
-    val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
-    val focusManager = LocalFocusManager.current
 
-    // Fetch data from API (Live)
-    LaunchedEffect(Unit) {
-        repository.getSectionLines().onSuccess {
-            sectionLines = it
-        }.onFailure {
-            scope.launch {
-                snackbarHostState.showSnackbar("Failed to load lines: ${it.message}")
-            }
-        }
-    }
-
-    val sections = sectionLines.asSequence().map { it.SectionName }.distinct().toList()
-    val filteredLines = sectionLines.filter { it.SectionName == selectedSectionName }
-
-    Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        containerColor = Color(0xFFF5F5F5),
-        modifier = Modifier.pointerInput(Unit) {
-            detectTapGestures {
-                focusManager.clearFocus()
-            }
-        }
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentAlignment = Alignment.TopCenter
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .verticalScroll(rememberScrollState()),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(20.dp)
-            ) {
-                HeaderSection()
-
-                IDCardInputSection(
-                    idCardText = idCardText
-                ) { idCardText = it }
-
-                if (sections.isNotEmpty()) {
-                    SectionSelectionSection(
-                        sections = sections,
-                        selectedSection = selectedSectionName,
-                        onSectionSelected = {
-                            selectedSectionName = it
-                            selectedLineId = null
-                        }
-                    )
-                }
-
-                if (selectedSectionName != null) {
-                    LineSelectionSection(
-                        sectionName = selectedSectionName!!,
-                        lines = filteredLines,
-                        selectedLineId = selectedLineId,
-                        onLineSelected = { selectedLineId = it }
-                    )
-                }
-
-                if (selectedLineId != null) {
-                    SubmitButtonSection(
-                        onSubmit = {
-                            val line = selectedLineId ?: "Unknown"
-                            val idCard = idCardText
-                            if (idCard.isBlank()) {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        message = "Please enter your ID card number",
-                                        duration = SnackbarDuration.Short
-                                    )
-                                }
-                                return@SubmitButtonSection
-                            }
-
-                            scope.launch {
-                                repository.submitMedicalInfo(idCard, line).onSuccess { isSuccess ->
-                                    if (isSuccess) {
-                                        snackbarHostState.showSnackbar(
-                                            message = "Successfully submitted",
-                                            duration = SnackbarDuration.Short
-                                        )
-                                    } else {
-                                        snackbarHostState.showSnackbar(
-                                            message = "Submission rejected by server. Please verify your information.",
-                                            duration = SnackbarDuration.Long
-                                        )
-                                    }
-                                }.onFailure {
-                                    snackbarHostState.showSnackbar(
-                                        message = "Failed to submit: ${it.message ?: "Unknown error"}",
-                                        duration = SnackbarDuration.Long
-                                    )
-                                }
-                            }
-                        }
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-        }
-    }
-}
 
 
 
@@ -195,7 +82,7 @@ fun SubmitButtonSection(
 
 
 @Composable
-fun HeaderSection() {
+fun HeaderSection(onMenuClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -203,17 +90,30 @@ fun HeaderSection() {
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Text(
-            text = "Medical Gate Pass & Appointment System",
-            style = MaterialTheme.typography.headlineMedium.copy(
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Medical Gate Pass & Appointment System",
+                modifier = Modifier.weight(1f),
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                ),
+                textAlign = TextAlign.Center
+            )
+            IconButton(
+                onClick = onMenuClick
+            )
+            {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Menu",
+                    tint = Color.White
+                )
+            }
+        }
     }
 }
 
