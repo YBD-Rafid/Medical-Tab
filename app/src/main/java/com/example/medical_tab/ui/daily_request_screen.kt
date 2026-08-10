@@ -1,3 +1,5 @@
+package com.example.medical_tab.ui
+
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

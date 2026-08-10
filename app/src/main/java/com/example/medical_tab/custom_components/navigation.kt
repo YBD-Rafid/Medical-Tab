@@ -1,6 +1,6 @@
 package com.example.medical_tab.custom_components
 
-import EmployeeIDApp
+import com.example.medical_tab.ui.EmployeeIDApp
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,17 +16,16 @@ fun AppNavigation(repository: MedicalRepository) {
         composable("home") {
             EmployeeIDApp(
                 repository = repository,
-                onNavigateToMedicalList = {
-                    navController.navigate("medical_list")
-                }
-            )
+            ) {
+                navController.navigate("medical_list")
+            }
         }
         composable("medical_list") {
             MedicalListScreen(
-                onBackClick = {
-                    navController.popBackStack()
-                }
-            )
+                repository = repository,
+            ) {
+                navController.popBackStack()
+            }
         }
     }
 }

@@ -5,18 +5,25 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.medical_tab.model.RequestResponseModel
+import com.example.medical_tab.model.SectionLineModel
+import com.example.medical_tab.repository.MedicalRepository
 import com.example.medical_tab.ui.theme.PrimaryColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MedicalListScreen(onBackClick: () -> Unit) {
+fun MedicalListScreen(
+    repository: MedicalRepository,
+    onBackClick: () -> Unit,
+) {
+
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -26,7 +33,7 @@ fun MedicalListScreen(onBackClick: () -> Unit) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = Color.White
+                            tint = Color.White,
                         )
                     }
                 },

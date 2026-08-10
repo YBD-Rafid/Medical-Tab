@@ -1,5 +1,4 @@
 package com.example.medical_tab
-import android.R.color.white
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
@@ -41,7 +40,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(
                 android.graphics.Color.TRANSPARENT,
-                android.graphics.Color.TRANSPARENT
+                android.graphics.Color.TRANSPARENT,
             )
         )
         val repository = MedicalRepository(RetrofitClient.apiService)

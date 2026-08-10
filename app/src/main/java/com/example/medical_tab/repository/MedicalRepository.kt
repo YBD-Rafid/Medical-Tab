@@ -19,7 +19,6 @@ class MedicalRepository(private val apiService: ApiService) {
             Result.failure(e)
         }
     }
-
     suspend fun submitMedicalInfo(idCard: String, lineId: String): Result<Boolean> {
         return try {
             Log.d("MedicalRepo", "Submitting Info - ID: $idCard, Line: $lineId")
@@ -28,9 +27,12 @@ class MedicalRepository(private val apiService: ApiService) {
             Log.d("MedicalRepo", "Submission Result: $response")
             val isSuccess = response.output == "success"
             Result.success(isSuccess)
-        } catch (e: Exception) {
+        }
+        catch (e: Exception) {
             Log.e("MedicalRepo", "Submission Error: ${e.message}", e)
             Result.failure(e)
         }
     }
+
+
 }
