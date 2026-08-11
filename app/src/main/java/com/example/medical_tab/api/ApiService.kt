@@ -12,7 +12,4 @@ interface ApiService {
 
     @POST("api/Support/TokenRaise")
     suspend fun submitSelection(@Body request: TokenRaiseRequest): TokenRaiseResponse
-
 }
-
-

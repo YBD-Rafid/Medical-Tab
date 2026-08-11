@@ -33,6 +33,4 @@ class MedicalRepository(private val apiService: ApiService) {
             Result.failure(e)
         }
     }
-
-
 }

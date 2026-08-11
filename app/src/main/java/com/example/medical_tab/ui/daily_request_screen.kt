@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,17 +37,18 @@ import com.example.medical_tab.SectionSelectionSection
 import com.example.medical_tab.SubmitButtonSection
 import com.example.medical_tab.model.SectionLineModel
 import com.example.medical_tab.repository.MedicalRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun EmployeeIDApp(
-    repository: MedicalRepository,
-    onNavigateToMedicalList: () -> Unit
+    repository: MedicalRepository
 ) {
     var idCardText by remember { mutableStateOf("") }
     var sectionLines by remember { mutableStateOf<List<SectionLineModel>>(emptyList()) }
     var selectedSectionName by remember { mutableStateOf<String?>(null) }
     var selectedLineId by remember { mutableStateOf<String?>(null) }
+    var isLoading by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val focusManager = LocalFocusManager.current
@@ -87,7 +90,7 @@ fun EmployeeIDApp(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                HeaderSection(onMenuClick = onNavigateToMedicalList)
+                HeaderSection()
 
                 IDCardInputSection(
                     idCardText = idCardText
@@ -129,19 +132,34 @@ fun EmployeeIDApp(
                             }
 
                             scope.launch {
+                                isLoading = true
                                 repository.submitMedicalInfo(idCard, line).onSuccess { isSuccess ->
                                     if (isSuccess) {
+                                        // Show success toast first
                                         snackbarHostState.showSnackbar(
                                             message = "Successfully submitted",
                                             duration = SnackbarDuration.Short
                                         )
+
+                                        // Wait 1 second with loading visible
+                                        delay(300)
+
+                                        // Then reset all data
+                                        isLoading = false
+                                        idCardText = ""
+                                        selectedSectionName = null
+                                        selectedLineId = null
+                                        focusManager.clearFocus()
+
                                     } else {
+                                        isLoading = false
                                         snackbarHostState.showSnackbar(
-                                            message = "Submission rejected by server. Please verify your information.",
+                                            message = "Submission rejected by server",
                                             duration = SnackbarDuration.Long
                                         )
                                     }
                                 }.onFailure {
+                                    isLoading = false
                                     snackbarHostState.showSnackbar(
                                         message = "Failed to submit: ${it.message ?: "Unknown error"}",
                                         duration = SnackbarDuration.Long
@@ -153,6 +171,17 @@ fun EmployeeIDApp(
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            if (isLoading) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = Color.Black.copy(alpha = 0.3f)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(color = Color.White)
+                    }
+                }
             }
         }
     }

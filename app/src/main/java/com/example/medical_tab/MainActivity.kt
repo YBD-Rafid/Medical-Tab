@@ -4,34 +4,25 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.WindowCompat
 import com.example.medical_tab.api.RetrofitClient
 import com.example.medical_tab.repository.MedicalRepository
 import com.example.medical_tab.ui.theme.EmployeeIDAppTheme
 import com.example.medical_tab.ui.theme.PrimaryColor
-import com.example.medical_tab.custom_components.AppNavigation
+import com.example.medical_tab.ui.EmployeeIDApp
 
 class MainActivity : ComponentActivity() {
 
@@ -46,7 +37,7 @@ class MainActivity : ComponentActivity() {
         val repository = MedicalRepository(RetrofitClient.apiService)
         setContent {
             EmployeeIDAppTheme {
-                AppNavigation(repository)
+                EmployeeIDApp(repository)
             }
         }
     }
@@ -81,7 +72,7 @@ fun SubmitButtonSection(
 
 
 @Composable
-fun HeaderSection(onMenuClick: () -> Unit) {
+fun HeaderSection() {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -102,16 +93,7 @@ fun HeaderSection(onMenuClick: () -> Unit) {
                 ),
                 textAlign = TextAlign.Center
             )
-            IconButton(
-                onClick = onMenuClick
-            )
-            {
-                Icon(
-                    imageVector = Icons.Default.Menu,
-                    contentDescription = "Menu",
-                    tint = Color.White
-                )
-            }
+
         }
     }
 }
