@@ -97,8 +97,7 @@ fun HeaderSection() {
             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Medical Gate Pass & Appointment System",
+            Text(text = "Medical Gate Pass & Appointment System",
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
@@ -137,20 +136,32 @@ fun IDCardInputSection(
             OutlinedTextField(
                 value = idCardText,
                 textStyle = TextStyle(color = Color.Black),
+
                 onValueChange = { newValue ->
-                    // Only allow digits 0-9
                     val filtered = newValue.filter { it.isDigit() }
                     onIdCardChange(filtered)
                 },
-                label = { Text("ID Card Number") },
+
+                label = {
+                    Text("ID Card Number")
+                },
+
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 shape = RoundedCornerShape(8.dp),
+
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = PrimaryColor,
-                    unfocusedBorderColor = Color.Gray
+                    unfocusedBorderColor = Color.Gray,
+
+                    // Label color
+                    focusedLabelColor = Color.Black,
+                    unfocusedLabelColor = Color.Black
                 ),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number
+                )
             )
         }
     }
