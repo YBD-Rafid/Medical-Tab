@@ -11,12 +11,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -37,7 +35,6 @@ import com.example.medical_tab.SectionSelectionSection
 import com.example.medical_tab.SubmitButtonSection
 import com.example.medical_tab.model.SectionLineModel
 import com.example.medical_tab.repository.MedicalRepository
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -94,7 +91,8 @@ fun EmployeeIDApp(
 
                 IDCardInputSection(
                     idCardText = idCardText
-                ) { idCardText = it }
+                )
+                { idCardText = it }
 
                 if (sections.isNotEmpty()) {
                     SectionSelectionSection(
@@ -118,6 +116,7 @@ fun EmployeeIDApp(
 
                 if (selectedLineId != null) {
                     SubmitButtonSection(
+                        isLoading = isLoading,
                         onSubmit = {
                             val line = selectedLineId ?: "Unknown"
                             val idCard = idCardText
@@ -134,25 +133,22 @@ fun EmployeeIDApp(
                             scope.launch {
                                 isLoading = true
                                 repository.submitMedicalInfo(idCard, line).onSuccess { isSuccess ->
+                                    isLoading = false
                                     if (isSuccess) {
-                                        // Show success toast first
+                                        idCardText = ""
+                                        selectedSectionName = null
+                                        selectedLineId = null
+                                        focusManager.clearFocus()
+                                        // Show success toast
                                         snackbarHostState.showSnackbar(
                                             message = "Successfully submitted",
                                             duration = SnackbarDuration.Short
                                         )
 
-                                        // Wait 1 second with loading visible
-                                        delay(300)
+                                        // Reset all data immediately
 
-                                        // Then reset all data
-                                        isLoading = false
-                                        idCardText = ""
-                                        selectedSectionName = null
-                                        selectedLineId = null
-                                        focusManager.clearFocus()
 
                                     } else {
-                                        isLoading = false
                                         snackbarHostState.showSnackbar(
                                             message = "Submission rejected by server",
                                             duration = SnackbarDuration.Long
@@ -171,17 +167,6 @@ fun EmployeeIDApp(
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
-            }
-
-            if (isLoading) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = Color.Black.copy(alpha = 0.3f)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = Color.White)
-                    }
-                }
             }
         }
     }

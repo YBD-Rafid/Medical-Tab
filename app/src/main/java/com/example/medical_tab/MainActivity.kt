@@ -49,24 +49,37 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun SubmitButtonSection(
+    isLoading: Boolean = false,
+    enabled: Boolean = true,
     onSubmit: () -> Unit
 ) {
     Button(
         onClick = onSubmit,
+        enabled = enabled && !isLoading,
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF4CAF50),
-            contentColor = Color.White
+            contentColor = Color.White,
+            disabledContainerColor = Color(0xFF4CAF50).copy(alpha = 0.6f),
+            disabledContentColor = Color.White.copy(alpha = 0.6f)
         ),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Text(
-            "SUBMIT",
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp
-        )
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(24.dp),
+                color = Color.White,
+                strokeWidth = 2.dp
+            )
+        } else {
+            Text(
+                "SUBMIT",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+        }
     }
 }
 
