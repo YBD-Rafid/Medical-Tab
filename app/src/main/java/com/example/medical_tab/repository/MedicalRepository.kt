@@ -2,6 +2,7 @@ package com.example.medical_tab.repository
 
 import android.util.Log
 import com.example.medical_tab.api.ApiService
+import com.example.medical_tab.model.Prescription
 import com.example.medical_tab.model.SectionLineModel
 import com.example.medical_tab.model.TokenRaiseRequest
 
@@ -19,6 +20,22 @@ class MedicalRepository(private val apiService: ApiService) {
             Result.failure(e)
         }
     }
+
+    suspend fun getTodayRequests(): Result<List<Prescription>> {
+        return try {
+            Log.d("MedicalRepo", "Calling API: getPrescriptions")
+            val response = apiService.getPrescriptions()
+            if (response.success) {
+                Result.success(response.data)
+            } else {
+                Result.failure(Exception(response.message))
+            }
+        } catch (e: Exception) {
+            Log.e("MedicalRepo", "API Error fetching prescriptions: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
     suspend fun submitMedicalInfo(idCard: String, lineId: String): Result<Boolean> {
         return try {
             Log.d("MedicalRepo", "Submitting Info - ID: $idCard, Line: $lineId")

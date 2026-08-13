@@ -39,7 +39,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun EmployeeIDApp(
-    repository: MedicalRepository
+    repository: MedicalRepository,
+    onMenuClick: () -> Unit
 ) {
     var idCardText by remember { mutableStateOf("") }
     var sectionLines by remember { mutableStateOf<List<SectionLineModel>>(emptyList()) }
@@ -87,7 +88,7 @@ fun EmployeeIDApp(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                HeaderSection()
+                HeaderSection(onMenuClick = onMenuClick)
 
                 IDCardInputSection(
                     idCardText = idCardText

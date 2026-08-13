@@ -7,6 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.medical_tab.api.RetrofitClient
 import com.example.medical_tab.repository.MedicalRepository
+import com.example.medical_tab.ui.AppNavigation
 import com.example.medical_tab.ui.theme.EmployeeIDAppTheme
 import com.example.medical_tab.ui.theme.PrimaryColor
 import com.example.medical_tab.ui.EmployeeIDApp
@@ -37,7 +40,7 @@ class MainActivity : ComponentActivity() {
         val repository = MedicalRepository(RetrofitClient.apiService)
         setContent {
             EmployeeIDAppTheme {
-                EmployeeIDApp(repository)
+                AppNavigation(repository)
             }
         }
     }
@@ -85,7 +88,7 @@ fun SubmitButtonSection(
 
 
 @Composable
-fun HeaderSection() {
+fun HeaderSection(onMenuClick: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -105,6 +108,13 @@ fun HeaderSection() {
                 ),
                 textAlign = TextAlign.Center
             )
+            IconButton(onClick = onMenuClick) {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Menu",
+                    tint = Color.White
+                )
+            }
 
         }
     }
