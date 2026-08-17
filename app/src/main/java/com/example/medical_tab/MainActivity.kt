@@ -60,7 +60,7 @@ fun SubmitButtonSection(
         onClick = onSubmit,
         enabled = enabled && !isLoading,
         modifier = Modifier
-            .fillMaxWidth()
+            .fillMaxWidth(0.5f)
             .height(56.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = Color(0xFF4CAF50),
@@ -126,7 +126,7 @@ fun IDCardInputSection(
     onIdCardChange: (String) -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
@@ -134,18 +134,24 @@ fun IDCardInputSection(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.fillMaxSize().padding(24.dp),
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = "Enter ID Card Number",
                 style = MaterialTheme.typography.titleMedium,
                 color = PrimaryColor,
+                fontSize = 18.sp,
                 fontWeight = FontWeight.SemiBold
             )
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
                 value = idCardText,
-                textStyle = TextStyle(color = Color.Black),
+                textStyle = TextStyle(
+                    color = Color.Black,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Medium
+                ),
 
                 onValueChange = { newValue ->
                     val filtered = newValue.filter { it.isDigit() }
@@ -153,7 +159,7 @@ fun IDCardInputSection(
                 },
 
                 label = {
-                    Text("ID Card Number")
+                    Text("ID Card Number", fontSize = 18.sp)
                 },
 
                 modifier = Modifier.fillMaxWidth(),

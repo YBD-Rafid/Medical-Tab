@@ -26,8 +26,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
+import android.content.res.Configuration
 import com.example.medical_tab.HeaderSection
 import com.example.medical_tab.IDCardInputSection
 import com.example.medical_tab.LineSelectionSection
@@ -65,6 +67,10 @@ fun EmployeeIDApp(
     val sections = sectionLines.asSequence().map { it.SectionName }.distinct().toList()
     val filteredLines = sectionLines.filter { it.SectionName == selectedSectionName }
 
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val spacing = if (isLandscape) 16.dp else 32.dp
+
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         containerColor = Color(0xFFF5F5F5),
@@ -82,18 +88,17 @@ fun EmployeeIDApp(
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+                    .fillMaxSize()
+                    .padding(if (isLandscape) 16.dp else 24.dp)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+                verticalArrangement = Arrangement.spacedBy(spacing)
             ) {
                 HeaderSection(onMenuClick = onMenuClick)
 
                 IDCardInputSection(
                     idCardText = idCardText
-                )
-                { idCardText = it }
+                ) { idCardText = it }
 
                 if (sections.isNotEmpty()) {
                     SectionSelectionSection(
@@ -140,15 +145,10 @@ fun EmployeeIDApp(
                                         selectedSectionName = null
                                         selectedLineId = null
                                         focusManager.clearFocus()
-                                        // Show success toast
                                         snackbarHostState.showSnackbar(
                                             message = "Successfully submitted",
                                             duration = SnackbarDuration.Short
                                         )
-
-                                        // Reset all data immediately
-
-
                                     } else {
                                         snackbarHostState.showSnackbar(
                                             message = "Submission rejected by server",
@@ -167,7 +167,7 @@ fun EmployeeIDApp(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(if (isLandscape) 16.dp else 48.dp))
             }
         }
     }
