@@ -1,28 +1,28 @@
 package com.example.medical_tab
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import android.content.res.Configuration
 import com.example.medical_tab.ui.theme.PrimaryColor
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SectionSelectionSection(
     sections: List<String>,
     selectedSection: String?,
+    modifier: Modifier = Modifier,
     onSectionSelected: (String) -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth().heightIn(min = 180.dp),
+        modifier = modifier.fillMaxWidth().height(280.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
@@ -30,7 +30,9 @@ fun SectionSelectionSection(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(24.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
             Text(
                 text = "Select Section",
@@ -41,10 +43,7 @@ fun SectionSelectionSection(
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
-            val configuration = LocalConfiguration.current
-            val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-            val itemsPerRow = if (isLandscape) 8 else 5
-            val buttonHeight = if (isLandscape) 56.dp else 64.dp
+            val itemsPerRow = 5
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -60,7 +59,7 @@ fun SectionSelectionSection(
                                 onClick = { onSectionSelected(sectionName) },
                                 modifier = Modifier
                                     .weight(1f)
-                                    .height(buttonHeight),
+                                    .height(56.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = if (selectedSection == sectionName)
                                         PrimaryColor
@@ -72,12 +71,12 @@ fun SectionSelectionSection(
                                         PrimaryColor
                                 ),
                                 shape = RoundedCornerShape(8.dp),
-                                contentPadding = PaddingValues(horizontal = 4.dp)
+                                contentPadding = PaddingValues(0.dp)
                             ) {
                                 Text(
-                                    sectionName,
+                                    text = sectionName,
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = if (isLandscape) 18.sp else 20.sp,
+                                    fontSize = 20.sp,
                                     maxLines = 1
                                 )
                             }

@@ -5,6 +5,7 @@ import com.example.medical_tab.api.ApiService
 import com.example.medical_tab.model.Prescription
 import com.example.medical_tab.model.SectionLineModel
 import com.example.medical_tab.model.TokenRaiseRequest
+import com.example.medical_tab.model.UserModel
 
 class MedicalRepository(private val apiService: ApiService) {
     
@@ -36,10 +37,10 @@ class MedicalRepository(private val apiService: ApiService) {
         }
     }
 
-    suspend fun submitMedicalInfo(idCard: String, lineId: String): Result<Boolean> {
+    suspend fun submitMedicalInfo(idCard: String, lineId: String, urgencyType: Int): Result<Boolean> {
         return try {
-            Log.d("MedicalRepo", "Submitting Info - ID: $idCard, Line: $lineId")
-            val request = TokenRaiseRequest(IdCardNo = idCard, LineId = lineId)
+            Log.d("MedicalRepo", "Submitting Info - ID: $idCard, Line: $lineId, UrgencyType: $urgencyType")
+            val request = TokenRaiseRequest(IdCardNo = idCard, LineId = lineId, UrgencyType = urgencyType)
             val response = apiService.submitSelection(request)
             Log.d("MedicalRepo", "Submission Result: $response")
             val isSuccess = response.output == "success"
@@ -47,6 +48,19 @@ class MedicalRepository(private val apiService: ApiService) {
         }
         catch (e: Exception) {
             Log.e("MedicalRepo", "Submission Error: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getAllUsers(): Result<List<UserModel>> {
+        return try {
+            Log.d("MedicalRepo", "Calling API: getAllUsers")
+            val response = apiService.getAllUsers()
+            Log.d("MedicalRepo", "Response Success: Found ${response.size} items")
+            Log.d("MedicalRepo", "Data: $response")
+            Result.success(response)
+        } catch (e: Exception) {
+            Log.e("MedicalRepo", "API Error fetching lines: ${e.message}", e)
             Result.failure(e)
         }
     }

@@ -25,7 +25,6 @@ import com.example.medical_tab.repository.MedicalRepository
 import com.example.medical_tab.ui.AppNavigation
 import com.example.medical_tab.ui.theme.EmployeeIDAppTheme
 import com.example.medical_tab.ui.theme.PrimaryColor
-import com.example.medical_tab.ui.EmployeeIDApp
 
 class MainActivity : ComponentActivity() {
 
@@ -89,6 +88,8 @@ fun SubmitButtonSection(
 
 @Composable
 fun HeaderSection(onMenuClick: () -> Unit) {
+
+
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
@@ -97,10 +98,9 @@ fun HeaderSection(onMenuClick: () -> Unit) {
         shape = RoundedCornerShape(12.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp, horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "Medical Gate Pass & Appointment System",
+            Text(text = "Y-Care",
                 modifier = Modifier.weight(1f),
                 style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold,
@@ -120,13 +120,20 @@ fun HeaderSection(onMenuClick: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IDCardInputSection(
     idCardText: String,
-    onIdCardChange: (String) -> Unit
+    selectedPriority: String,
+    modifier: Modifier = Modifier,
+    onIdCardChange: (String) -> Unit,
+    onPriorityChange: (String) -> Unit
 ) {
+    var expanded by remember { mutableStateOf(false) }
+    val priorities = listOf("High", "Medium", "Low")
+
     Card(
-        modifier = Modifier.fillMaxWidth().heightIn(min = 120.dp),
+        modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
@@ -134,51 +141,110 @@ fun IDCardInputSection(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(24.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = "Enter ID Card Number",
-                style = MaterialTheme.typography.titleMedium,
-                color = PrimaryColor,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = idCardText,
-                textStyle = TextStyle(
-                    color = Color.Black,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Medium
-                ),
+            Row(
+                modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.Top
+            ) {
+                // ID Card Input
+                Column(modifier = Modifier.weight(3.5f).fillMaxHeight()) {
+                    Text(
+                        text = "Enter ID Card Number",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = PrimaryColor,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    OutlinedTextField(
+                        value = idCardText,
+                        textStyle = TextStyle(
+                            color = Color.Black,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Medium
+                        ),
+                        onValueChange = { newValue ->
+                            val filtered = newValue.filter { it.isDigit() }
+                            onIdCardChange(filtered)
+                        },
+                        label = {
+                            Text("ID Card Number", fontSize = 16.sp)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(8.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = PrimaryColor,
+                            unfocusedBorderColor = Color.Gray,
+                            focusedLabelColor = Color.Black,
+                            unfocusedLabelColor = Color.Black
+                        ),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        )
+                    )
+                }
+                // Priority Dropdown
+                Column(modifier = Modifier.weight(1.5f).fillMaxHeight()) {
+                    Text(
+                        text = "Priority",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = PrimaryColor,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    ExposedDropdownMenuBox(
+                        expanded = expanded,
+                        onExpandedChange = { expanded = !expanded },
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        OutlinedTextField(
+                            value = selectedPriority,
+                            onValueChange = {},
+                            readOnly = true,
+                            modifier = Modifier.menuAnchor().fillMaxWidth(),
+                            textStyle = TextStyle(
+                                color = Color.Black,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Medium
+                            ),
 
-                onValueChange = { newValue ->
-                    val filtered = newValue.filter { it.isDigit() }
-                    onIdCardChange(filtered)
-                },
-
-                label = {
-                    Text("ID Card Number", fontSize = 18.sp)
-                },
-
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                shape = RoundedCornerShape(8.dp),
-
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = PrimaryColor,
-                    unfocusedBorderColor = Color.Gray,
-
-                    // Label color
-                    focusedLabelColor = Color.Black,
-                    unfocusedLabelColor = Color.Black
-                ),
-
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number
-                )
-            )
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                            shape = RoundedCornerShape(8.dp),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = PrimaryColor,
+                                unfocusedBorderColor = Color.Gray,
+                                focusedLabelColor = Color.Black,
+                                unfocusedLabelColor = Color.Black
+                            )
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            priorities.forEach { priority ->
+                                DropdownMenuItem(
+                                    text = { 
+                                        Text(
+                                            text = priority,
+                                            color = Color.Black,
+                                            fontWeight = FontWeight.Bold
+                                        ) 
+                                    },
+                                    onClick = {
+                                        onPriorityChange(priority)
+                                        expanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

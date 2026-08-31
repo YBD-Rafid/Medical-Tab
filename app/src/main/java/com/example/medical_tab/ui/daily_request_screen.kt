@@ -1,14 +1,7 @@
 package com.example.medical_tab.ui
 
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
@@ -26,16 +19,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
-import android.content.res.Configuration
 import com.example.medical_tab.HeaderSection
 import com.example.medical_tab.IDCardInputSection
 import com.example.medical_tab.LineSelectionSection
 import com.example.medical_tab.SectionSelectionSection
 import com.example.medical_tab.SubmitButtonSection
 import com.example.medical_tab.model.SectionLineModel
+import com.example.medical_tab.model.UserModel
 import com.example.medical_tab.repository.MedicalRepository
 import kotlinx.coroutines.launch
 
@@ -45,7 +37,10 @@ fun EmployeeIDApp(
     onMenuClick: () -> Unit
 ) {
     var idCardText by remember { mutableStateOf("") }
+    var selectedPriority by remember { mutableStateOf("High") }
     var sectionLines by remember { mutableStateOf<List<SectionLineModel>>(emptyList()) }
+    var userList by remember { mutableStateOf<List<UserModel>>(emptyList()) }
+
     var selectedSectionName by remember { mutableStateOf<String?>(null) }
     var selectedLineId by remember { mutableStateOf<String?>(null) }
     var isLoading by remember { mutableStateOf(false) }
@@ -62,14 +57,13 @@ fun EmployeeIDApp(
                 snackbarHostState.showSnackbar("Failed to load lines: ${it.message}")
             }
         }
+
     }
 
     val sections = sectionLines.asSequence().map { it.SectionName }.distinct().toList()
     val filteredLines = sectionLines.filter { it.SectionName == selectedSectionName }
 
-    val configuration = LocalConfiguration.current
-    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-    val spacing = if (isLandscape) 16.dp else 32.dp
+    val spacing = 16.dp
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -89,7 +83,7 @@ fun EmployeeIDApp(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(if (isLandscape) 16.dp else 24.dp)
+                    .padding(horizontal = 16.dp)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(spacing)
@@ -97,8 +91,11 @@ fun EmployeeIDApp(
                 HeaderSection(onMenuClick = onMenuClick)
 
                 IDCardInputSection(
-                    idCardText = idCardText
-                ) { idCardText = it }
+                    idCardText = idCardText,
+                    selectedPriority = selectedPriority,
+                    onIdCardChange = { idCardText = it },
+                    onPriorityChange = { selectedPriority = it }
+                )
 
                 if (sections.isNotEmpty()) {
                     SectionSelectionSection(
@@ -138,12 +135,18 @@ fun EmployeeIDApp(
 
                             scope.launch {
                                 isLoading = true
-                                repository.submitMedicalInfo(idCard, line).onSuccess { isSuccess ->
+                                val urgencyType = when(selectedPriority) {
+                                    "High" -> 1
+                                    "Medium" -> 2
+                                    else -> 3
+                                }
+                                repository.submitMedicalInfo(idCard, line, urgencyType).onSuccess { isSuccess ->
                                     isLoading = false
                                     if (isSuccess) {
                                         idCardText = ""
                                         selectedSectionName = null
                                         selectedLineId = null
+                                        selectedPriority = "High"
                                         focusManager.clearFocus()
                                         snackbarHostState.showSnackbar(
                                             message = "Successfully submitted",
@@ -167,7 +170,7 @@ fun EmployeeIDApp(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(if (isLandscape) 16.dp else 48.dp))
+                Spacer(modifier = Modifier.height(48.dp))
             }
         }
     }

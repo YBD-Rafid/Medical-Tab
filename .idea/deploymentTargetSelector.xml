@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-08-17T10:28:29.792398Z">
+        <DropdownSelection timestamp="2026-08-23T03:07:02.117946Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=00117651G000280" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/mis-app-developer/.android/avd/Pixel_4a.avd" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -23,10 +23,10 @@
       </SelectionState>
       <SelectionState runConfigName="androidTest">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-08-17T09:41:04.058478Z">
+        <DropdownSelection timestamp="2026-08-30T02:23:45.000575Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/mis-app-developer/.android/avd/Medium_Tablet.avd" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/mis-app-developer/.android/avd/Small_Tablet.avd" />
             </handle>
           </Target>
         </DropdownSelection>

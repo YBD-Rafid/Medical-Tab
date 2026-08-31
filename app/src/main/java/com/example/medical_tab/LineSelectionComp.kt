@@ -1,29 +1,29 @@
 package com.example.medical_tab
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import android.content.res.Configuration
 import com.example.medical_tab.model.SectionLineModel
 import com.example.medical_tab.ui.theme.PrimaryColor
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LineSelectionSection(
     sectionName: String,
     lines: List<SectionLineModel>,
     selectedLineId: String?,
+    modifier: Modifier = Modifier,
     onLineSelected: (String) -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth().heightIn(min = 180.dp),
+        modifier = modifier.fillMaxWidth().height(280.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White
         ),
@@ -31,7 +31,9 @@ fun LineSelectionSection(
         elevation = CardDefaults.cardElevation(4.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(24.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
             Text(
                 text = "Select Line ($sectionName)",
@@ -42,11 +44,9 @@ fun LineSelectionSection(
                 modifier = Modifier.padding(bottom = 12.dp)
             )
 
-            val configuration = LocalConfiguration.current
-            val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
-            val itemsPerRow = if (isLandscape) 8 else 5
-            val buttonHeight = if (isLandscape) 56.dp else 64.dp
+            val itemsPerRow = 5
 
+            // Using Column with chunked to enforce exactly 6 per row
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -61,7 +61,7 @@ fun LineSelectionSection(
                                 onClick = { onLineSelected(line.LineId) },
                                 modifier = Modifier
                                     .weight(1f)
-                                    .height(buttonHeight),
+                                    .height(56.dp),
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = if (selectedLineId == line.LineId)
                                         Color(0xFF4CAF50)
@@ -73,17 +73,17 @@ fun LineSelectionSection(
                                         Color(0xFF4CAF50)
                                 ),
                                 shape = RoundedCornerShape(8.dp),
-                                contentPadding = PaddingValues(horizontal = 4.dp)
+                                contentPadding = PaddingValues(0.dp)
                             ) {
                                 Text(
-                                    line.LineName.replace("Line ", ""),
+                                    text = line.LineName.replace("Line ", "").trim(),
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = if (isLandscape) 16.sp else 18.sp,
+                                    fontSize = 20.sp,
                                     maxLines = 1
                                 )
                             }
                         }
-                        // Add spacers to maintain grid alignment if row is not full
+                        // Add empty spacers to maintain exactly 6 columns
                         repeat(itemsPerRow - rowItems.size) {
                             Spacer(modifier = Modifier.weight(1f))
                         }
